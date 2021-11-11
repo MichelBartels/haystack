@@ -2,7 +2,7 @@ import logging
 from abc import ABC
 from copy import deepcopy
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from functools import wraps
 
 from haystack.schema import Document
@@ -69,6 +69,21 @@ class BaseStandardPipeline(ABC):
         :param path: the path to save the image.
         """
         self.pipeline.draw(path)
+    
+    def save_to_yaml(self, path: Path, return_defaults: bool = False):
+        return self.pipeline.save_to_yaml(path, return_defaults)
+    
+    @classmethod
+    def load_from_yaml(cls, path: Path, pipeline_name: Optional[str] = None, overwrite_with_env_variables: bool = True):
+        self = cls.__new__(cls)
+        self.pipeline = Pipeline.load_from_yaml(path, pipeline_name, overwrite_with_env_variables)
+        return self
+    
+    def get_nodes_by_class(self, class_type) -> List[Any]:
+        return self.pipeline.get_nodes_by_class(class_type)
+    
+    def get_document_store(self) -> Optional[BaseDocumentStore]:
+        return self.pipeline.get_document_store()
 
 
 class ExtractiveQAPipeline(BaseStandardPipeline):
